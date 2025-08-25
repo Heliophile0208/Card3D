@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2 Mặt 3D Card</title>
+    <style>
+        body {
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: #111;
+            perspective: 1000px;
+            font-family: sans-serif;
+            overflow: hidden;
+        }
+
+        /* Nút mở modal */
+        #openModalBtn {
+            padding: 10px 20px;
+            font-size: 1rem;
+            background: #0078ff;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        /* Modal nền */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            justify-content: center;
+            align-items: center;
+            z-index: 10;
+        }
+
+        /* Nội dung modal */
+        .modal-content {
+            background: white;
+            padding: 10px 30px 20px 30px;
+            border-radius: 12px;
+            width: 300px;
+            text-align: center;
+            position: relative;
+            border: 1px solid black;
+        }
+
+        table td,
+        th {
+            border: 1px solid black;
+        }
+
+        /* Nút đóng modal */
+        .close-btn {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            background: transparent;
+            border: none;
+            font-size: 1.2rem;
+            color: black;
+            cursor: pointer;
+        }
+
+        .background-text {
+            position: absolute;
+            font-size: 5rem;
+            color: rgba(255, 255, 255, 0.05);
+            user-select: none;
+            pointer-events: none;
+        }
+
+        .card-container {
+            width: 500px;
+            height: 300px;
+            position: relative;
+            transform-style: preserve-3d;
+            cursor: grab;
+        }
+
+        .card-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 20px;
+            backface-visibility: hidden;
+            background-size: cover;
+            background-position: center;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+        }
+
+        .card-title {
+            position: absolute;
+            top: 50px;
+            width: 100%;
+            text-align: center;
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #fff;
+            background: linear-gradient(90deg, #00c6ff, #0078ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.5);
+            letter-spacing: 2px;
+            animation: float 2s ease-in-out infinite alternate;
+            pointer-events: none;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateY(0px);
+            }
+
+            100% {
+                transform: translateY(-10px);
+            }
+        }
+
+
+        .front {
+            background-image: url('img/1.png');
+            /* Mặt trước */
+        }
+
+        .back {
+            background-image: url('img/2.png');
+            /* Mặt sau */
+            transform: rotateY(180deg);
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="background-text">SMART CARD INFORMATION</div>
+    <div class="card-title">Mẫu Thẻ NFC</div>
+    <div class="card-container" id="card">
+        <div class="card-face front"></div>
+        <div class="card-face back"></div>
+    </div>
+    <div style="position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%);">
+        <button id="openModalBtn">Xem Thông Số</button>
+    </div>
+
+
+    <!-- Modal -->
+    <div class="modal-overlay" id="modal">
+        <div class="modal-content">
+            <button class="close-btn" id="closeModal">&times;</button>
+            <h3 style="font-size: 24px; color: #0078ff;">Thông số chi tiết</h3>
+            <table style="width: 100%; border-collapse: collapse; margin-top: 15px;">
+                <tr>
+                    <td style="padding: 8px; border-bottom: 1px solid #555;">Mã thẻ</td>
+                    <td style="padding: 8px; border-bottom: 1px solid #555;">123456</td>
+                </tr>
+                <tr>
+                    <td style="padding: 8px; border-bottom: 1px solid #555;">Loại chip</td>
+                    <td style="padding: 8px; border-bottom: 1px solid #555;">NTAG215</td>
+                </tr>
+                <tr>
+                    <td style="padding: 8px; border-bottom: 1px solid #555;">Dung lượng</td>
+                    <td style="padding: 8px; border-bottom: 1px solid #555;">888 bytes</td>
+                </tr>
+                <tr>
+                    <td style="padding: 8px;">Hỗ trợ</td>
+                    <td style="padding: 8px;">Read/Write NFC</td>
+                </tr>
+            </table>
+        </div>
+
+        <script>
+            const openBtn = document.getElementById('openModalBtn');
+            const closeBtn = document.getElementById('closeModal');
+            const modal = document.getElementById('modal');
+
+            openBtn.addEventListener('click', () => {
+                modal.style.display = 'flex';
+            });
+
+            closeBtn.addEventListener('click', () => {
+                modal.style.display = 'none';
+            });
+
+            // Nhấn ra ngoài modal cũng đóng
+            modal.addEventListener('click', e => {
+                if (e.target === modal) {
+                    modal.style.display = 'none';
+                }
+            });
+            const card = document.getElementById('card');
+            let isDragging = false;
+            let startX, startY;
+            let rotateX = 0;
+            let rotateY = 0;
+
+            card.addEventListener('mousedown', e => {
+                isDragging = true;
+                startX = e.clientX;
+                startY = e.clientY;
+                card.style.cursor = 'grabbing';
+            });
+
+            window.addEventListener('mouseup', () => {
+                isDragging = false;
+                card.style.cursor = 'grab';
+            });
+
+            window.addEventListener('mousemove', e => {
+                if (!isDragging) return;
+                const deltaX = e.clientX - startX;
+                const deltaY = e.clientY - startY;
+
+                rotateY += deltaX * 0.5;
+                rotateX -= deltaY * 0.5;
+
+                card.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+                startX = e.clientX;
+                startY = e.clientY;
+            });
+        </script>
+
+</body>
+
+</html>
