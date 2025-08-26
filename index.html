@@ -178,56 +178,82 @@
             </table>
         </div>
 
-        <script>
-            const openBtn = document.getElementById('openModalBtn');
-            const closeBtn = document.getElementById('closeModal');
-            const modal = document.getElementById('modal');
+<script>
+    const openBtn = document.getElementById('openModalBtn');
+    const closeBtn = document.getElementById('closeModal');
+    const modal = document.getElementById('modal');
 
-            openBtn.addEventListener('click', () => {
-                modal.style.display = 'flex';
-            });
+    openBtn.addEventListener('click', () => {
+        modal.style.display = 'flex';
+    });
 
-            closeBtn.addEventListener('click', () => {
-                modal.style.display = 'none';
-            });
+    closeBtn.addEventListener('click', () => {
+        modal.style.display = 'none';
+    });
 
-            // Nhấn ra ngoài modal cũng đóng
-            modal.addEventListener('click', e => {
-                if (e.target === modal) {
-                    modal.style.display = 'none';
-                }
-            });
-            const card = document.getElementById('card');
-            let isDragging = false;
-            let startX, startY;
-            let rotateX = 0;
-            let rotateY = 0;
+    // Nhấn ra ngoài modal cũng đóng
+    modal.addEventListener('click', e => {
+        if (e.target === modal) {
+            modal.style.display = 'none';
+        }
+    });
 
-            card.addEventListener('mousedown', e => {
-                isDragging = true;
-                startX = e.clientX;
-                startY = e.clientY;
-                card.style.cursor = 'grabbing';
-            });
+    const card = document.getElementById('card');
+    let isDragging = false;
+    let startX, startY;
+    let rotateX = 0;
+    let rotateY = 0;
 
-            window.addEventListener('mouseup', () => {
-                isDragging = false;
-                card.style.cursor = 'grab';
-            });
+    // --- PC (chuột) ---
+    card.addEventListener('mousedown', e => {
+        isDragging = true;
+        startX = e.clientX;
+        startY = e.clientY;
+        card.style.cursor = 'grabbing';
+    });
 
-            window.addEventListener('mousemove', e => {
-                if (!isDragging) return;
-                const deltaX = e.clientX - startX;
-                const deltaY = e.clientY - startY;
+    window.addEventListener('mouseup', () => {
+        isDragging = false;
+        card.style.cursor = 'grab';
+    });
 
-                rotateY += deltaX * 0.5;
-                rotateX -= deltaY * 0.5;
+    window.addEventListener('mousemove', e => {
+        if (!isDragging) return;
+        const deltaX = e.clientX - startX;
+        const deltaY = e.clientY - startY;
 
-                card.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
-                startX = e.clientX;
-                startY = e.clientY;
-            });
-        </script>
+        rotateY += deltaX * 0.5;
+        rotateX -= deltaY * 0.5;
+
+        card.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+        startX = e.clientX;
+        startY = e.clientY;
+    });
+
+    // --- Mobile (cảm ứng) ---
+    card.addEventListener('touchstart', e => {
+        isDragging = true;
+        startX = e.touches[0].clientX;
+        startY = e.touches[0].clientY;
+    });
+
+    window.addEventListener('touchend', () => {
+        isDragging = false;
+    });
+
+    window.addEventListener('touchmove', e => {
+        if (!isDragging) return;
+        const deltaX = e.touches[0].clientX - startX;
+        const deltaY = e.touches[0].clientY - startY;
+
+        rotateY += deltaX * 0.5;
+        rotateX -= deltaY * 0.5;
+
+        card.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+        startX = e.touches[0].clientX;
+        startY = e.touches[0].clientY;
+    });
+</script>
 
 </body>
 
